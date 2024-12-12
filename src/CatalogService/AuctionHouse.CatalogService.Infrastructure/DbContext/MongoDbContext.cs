@@ -1,36 +1,35 @@
-﻿using MongoDB.Bson;
+﻿using AuctionHouse.CatalogService.Domain.Entities;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
-using AuctionHouse.CatalogService.Domain.Entities;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
+using MongoDB.EntityFrameworkCore.Extensions;
+using System.Xml;
+using System;
+using System.Collections.Generic;
+using System.Reflection.Emit;
 
-namespace Catalog.Services;
+namespace AuctionHouse.CatalogService.Infrastructure.DbContext;
 
 /// <summary>
 /// MongoDB database context class.
 /// </summary>
-public class MongoDBContext
+public class MongoDbContext(DbContextOptions<MongoDbContext> options) : Microsoft.EntityFrameworkCore.DbContext(options)
 {
-    public IMongoDatabase Database { get; set; }
-    public IMongoCollection<ProductItem> Collection { get; set; }
+    public DbSet<ProductItem> Products { get; set; }
 
-    /// <summary>
-    /// Create an instance of the context class.
-    /// </summary>
-    /// <param name="logger">Global logging facility.</param>
-    /// <param name="config">System configuration instance.</param>
-    public MongoDBContext(ILogger<MongoDBContext> logger, IConfiguration config)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
+        modelBuilder.Entity<ProductItem>(entity =>
+        {
+            entity.HasKey(e => e.ProductId);
 
-        var client = new MongoClient(config["MongoConnectionString"]);
-        Database = client.GetDatabase(config["CatalogDatabase"]);
-        Collection = Database.GetCollection<ProductItem>(config["CatalogCollection"]);
-
-        logger.LogInformation($"Connected to database {config["CatalogDatabase"]}");
-        logger.LogInformation($"Using collection {config["CatalogCollection"]}");
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(1000);
+        });
+        base.OnModelCreating(modelBuilder);
     }
-
 }

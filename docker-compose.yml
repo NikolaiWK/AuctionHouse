@@ -1,0 +1,78 @@
+version: "3.8"
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb-container
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb-data:/data/db
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-container
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: auth
+      Issuer:
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  Rabbitmq:
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lip/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+
+  auth-service:
+    build:
+      context: ./src
+      dockerfile: AuthenticationService/AuctionHouse.AuthenticationService.API/Dockerfile
+    container_name: auth-service
+    depends_on:
+      - postgres
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5051
+      ConnectionStrings__AuthDbConnection: Server=postgres;Port=5432;User Id=appuser;Password=secret;Database=auth
+      Issuer: http://auth-service:5051
+      Audience: auctionhouse-apps
+      JWTKey: THIS IS A VERY COMPLEX TEST KEY FOR TOKEN GENERATION
+    ports:
+      - "5051:5051"
+
+  catalog-service:
+    build:
+      context: ./src
+      dockerfile: CatalogService/AuctionHouse.CatalogService.API/Dockerfile
+    container_name: catalog-service
+    depends_on:
+      - auth-service
+      - mongodb
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:6051
+      ConnectionStrings__MongoDb: mongodb://admin:password@mongodb:27017
+      DatabaseName: Catalog
+      Issuer: http://auth-service:5051
+      Audience: auctionhouse-apps
+      JWTKey: THIS IS A VERY COMPLEX TEST KEY FOR TOKEN GENERATION
+    ports:
+      - "6051:6051"
+
+volumes:
+  mongodb-data:
+  postgres-data:
+  rabbitmq-data:

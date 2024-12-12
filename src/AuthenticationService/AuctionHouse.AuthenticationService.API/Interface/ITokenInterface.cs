@@ -9,43 +9,36 @@ namespace AuctionHouse.AuthenticationService.API.Interface
 {
     public interface ITokenService
     {
-   
+
         Task<string> GenerateToken(User user);
     }
 
-    public class TokenService : ITokenService
+    public class TokenService(IConfiguration config) : ITokenService
     {
-        private readonly UserManager<User> _userManager;
-        private readonly IConfiguration _config;
-
-        public TokenService(UserManager<User> userManager, IConfiguration config)
-        {
-            _userManager = userManager;
-            _config = config;
-        }
-
         public async Task<string> GenerateToken(User user)
         {
             var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.UserName)
-        };
+            {
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.UserName)
+            };
 
-       
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWTKey"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWTKey"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var tokeOptions = new JwtSecurityToken(
-                issuer: null,
-                audience: null,
-                claims: claims,
-                expires: DateTime.Now.AddDays(7),
-                signingCredentials: credentials
-            );
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddDays(7),
+                Issuer = config["Issuer"],
+                Audience = config["Audience"],
+                SigningCredentials = credentials
+            };
 
-            return new JwtSecurityTokenHandler().WriteToken(tokeOptions);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var securityToken = tokenHandler.CreateToken(tokenDescriptor);
+
+            return tokenHandler.WriteToken(securityToken);
         }
     }
 }

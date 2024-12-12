@@ -13,11 +13,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuctionHouse.Authentication
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CatalogService", "CatalogService", "{C850ACE7-AF2C-4E88-8E43-38C335B00C86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuctionHouse.CatalogService.API", "src\CatalogService\AuctionHouse.CatalogService.API\AuctionHouse.CatalogService.API.csproj", "{443AD180-7A29-4B72-8367-96ADAC21B654}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuctionHouse.CatalogService.API", "src\CatalogService\AuctionHouse.CatalogService.API\AuctionHouse.CatalogService.API.csproj", "{443AD180-7A29-4B72-8367-96ADAC21B654}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuctionHouse.CatalogService.Infrastructure", "src\CatalogService\AuctionHouse.CatalogService.Infrastructure\AuctionHouse.CatalogService.Infrastructure.csproj", "{C833FB59-5A6B-43F8-A788-68644D223733}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuctionHouse.CatalogService.Infrastructure", "src\CatalogService\AuctionHouse.CatalogService.Infrastructure\AuctionHouse.CatalogService.Infrastructure.csproj", "{C833FB59-5A6B-43F8-A788-68644D223733}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuctionHouse.CatalogService.Domain", "src\CatalogService\AuctionHouse.CatalogService.Domain\AuctionHouse.CatalogService.Domain.csproj", "{9C3B81AA-A7BB-4B4B-962B-A511EFF8BAC0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuctionHouse.CatalogService.Domain", "src\CatalogService\AuctionHouse.CatalogService.Domain\AuctionHouse.CatalogService.Domain.csproj", "{9C3B81AA-A7BB-4B4B-962B-A511EFF8BAC0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AuctionManagementService", "AuctionManagementService", "{DB5E703C-B8A8-4361-92C4-B2912EF53A5E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewFolder1", "NewFolder1", "{41016A4A-CBD7-40D6-8234-B672C9517132}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuctionHouse.AuctionManagementService.API", "src\AuctionManagementService\AuctionHouse.AuctionManagementService.API\AuctionHouse.AuctionManagementService.API.csproj", "{5E2AB474-4ADB-4814-9DD5-E238CE169CD9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +55,10 @@ Global
 		{9C3B81AA-A7BB-4B4B-962B-A511EFF8BAC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C3B81AA-A7BB-4B4B-962B-A511EFF8BAC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C3B81AA-A7BB-4B4B-962B-A511EFF8BAC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E2AB474-4ADB-4814-9DD5-E238CE169CD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E2AB474-4ADB-4814-9DD5-E238CE169CD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E2AB474-4ADB-4814-9DD5-E238CE169CD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E2AB474-4ADB-4814-9DD5-E238CE169CD9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,6 +70,7 @@ Global
 		{443AD180-7A29-4B72-8367-96ADAC21B654} = {C850ACE7-AF2C-4E88-8E43-38C335B00C86}
 		{C833FB59-5A6B-43F8-A788-68644D223733} = {C850ACE7-AF2C-4E88-8E43-38C335B00C86}
 		{9C3B81AA-A7BB-4B4B-962B-A511EFF8BAC0} = {C850ACE7-AF2C-4E88-8E43-38C335B00C86}
+		{5E2AB474-4ADB-4814-9DD5-E238CE169CD9} = {DB5E703C-B8A8-4361-92C4-B2912EF53A5E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {60B2B5BC-B48C-4D22-9ECD-0CEAC57ADD4C}

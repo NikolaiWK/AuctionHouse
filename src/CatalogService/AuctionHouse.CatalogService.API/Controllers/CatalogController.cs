@@ -1,17 +1,20 @@
-﻿using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Mvc;
-using Catalog.Services;
-using AuctionHouse.CatalogService.API.DTO;
-using AuctionHouse.CatalogService.Domain.Entities;
+﻿using AuctionHouse.CatalogService.API.DTO;
 using AuctionHouse.CatalogService.API.Mapper;
+using AuctionHouse.CatalogService.API.Services;
+using AuctionHouse.CatalogService.Domain.Entities;
+using Catalog.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Catalog.Controllers;
+namespace AuctionHouse.CatalogService.API.Controllers;
 
 /// <summary>
 /// The CatalogController implements the HTTP interface for accessing
 /// the product items catalog from a food business.
 /// </summary>
 [ApiController]
+[Authorize]
 [Route("[controller]")]
 public class CatalogController : ControllerBase
 {
@@ -55,26 +58,53 @@ public class CatalogController : ControllerBase
         return properties;
     }
 
-    [HttpGet("GetProduct")]
-    public async Task<ProductItemDTO?> GetProduct(Guid productId)
+    [HttpGet("{productId:guid}")]
+    public async Task<ProductItemDto?> GetProduct(Guid productId)
     {
         _logger.LogInformation($"Request for product with guid: {productId}");
 
-        ProductItem? result = await _dbService.GetProductItem(productId);
+        var result = await _dbService.GetProductItem(productId);
 
-        
+        if (result == null)
+        {
+            return null;
+        }
+
         return ProductMapper.MapToProductDTO(result);
     }
 
-  
+    [HttpGet]
+    public async Task<List<ProductItemDto>> GetProducts()
+    {
+        _logger.LogInformation("Request for all products");
+
+        var result = await _dbService.GetProductItems();
+
+        return result.Select(ProductMapper.MapToProductDTO).ToList();
+    }
 
     [HttpPost("CreateProduct")]
-    public Task<Guid?> CreateProduct(ProductItemDTO dto)
+    public Task<Guid?> CreateProduct(ProductItemDto dto)
     {
         var createdProduct = ProductMapper.MapToProduct(dto);
 
         return _dbService.AddProductItem(createdProduct);
     }
+
+    [HttpPut("{productId:guid}")]
+    public async Task<Guid?> ProductSold(Guid productId)
+    {
+        await _dbService.ProductSold(productId);
+        return productId;
+    }
+
+    [HttpDelete("{productId:guid}")]
+    public async Task<Guid?> DeleteProduct(Guid productId)
+    {
+        await _dbService.DeleteItem(productId);
+        return productId;
+    }
+
 
     //[HttpPost("AddImage"), DisableRequestSizeLimit]
     //public async Task<IActionResult> UploadImage()

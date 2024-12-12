@@ -1,12 +1,11 @@
-﻿using System.Net.NetworkInformation;
-using AuctionHouse.CatalogService.API.DTO;
+﻿using AuctionHouse.CatalogService.API.DTO;
 using AuctionHouse.CatalogService.Domain.Entities;
 
 namespace AuctionHouse.CatalogService.API.Mapper
 {
     public static class ProductMapper
     {
-        public static ProductItem MapToProduct(ProductItemDTO productItemDTO)
+        public static ProductItem MapToProduct(ProductItemDto productItemDTO)
         {
             return new ProductItem
             {
@@ -14,23 +13,21 @@ namespace AuctionHouse.CatalogService.API.Mapper
                 AskingPrice = productItemDTO.AskingPrice,
                 CreatedAt = DateTime.Now,
                 Description = productItemDTO.Description,
-                Images = productItemDTO.Images,
                 Title = productItemDTO.Title,
                 UpdatedAt = DateTime.Now
             };
         }
 
-        public static ProductItemDTO MapToProductDTO(ProductItem productItem)
+        public static ProductItemDto MapToProductDTO(ProductItem productItem)
         {
-            return new ProductItemDTO
+            return new ProductItemDto
             {
                 Title = productItem.Title,
                 Description = productItem.Description,
                 AskingPrice = productItem.AskingPrice,
-                Images = productItem.Images,
                 IsSold = productItem.IsSold,
                 ProductId = productItem.ProductId
-                 
+
             };
 
         }
