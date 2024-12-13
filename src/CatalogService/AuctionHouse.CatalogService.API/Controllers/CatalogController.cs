@@ -1,8 +1,6 @@
 ﻿using AuctionHouse.CatalogService.API.DTO;
 using AuctionHouse.CatalogService.API.Mapper;
 using AuctionHouse.CatalogService.API.Services;
-using AuctionHouse.CatalogService.Domain.Entities;
-using Catalog.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;

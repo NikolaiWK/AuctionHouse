@@ -21,9 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuctionHouse.CatalogService
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AuctionManagementService", "AuctionManagementService", "{DB5E703C-B8A8-4361-92C4-B2912EF53A5E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewFolder1", "NewFolder1", "{41016A4A-CBD7-40D6-8234-B672C9517132}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuctionHouse.AuctionManagementService.API", "src\AuctionManagementService\AuctionHouse.AuctionManagementService.API\AuctionHouse.AuctionManagementService.API.csproj", "{5E2AB474-4ADB-4814-9DD5-E238CE169CD9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuctionHouse.AuctionManagementService.API", "src\AuctionManagementService\AuctionHouse.AuctionManagementService.API\AuctionHouse.AuctionManagementService.API.csproj", "{5E2AB474-4ADB-4814-9DD5-E238CE169CD9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

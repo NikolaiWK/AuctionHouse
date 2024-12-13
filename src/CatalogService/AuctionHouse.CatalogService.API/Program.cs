@@ -1,7 +1,6 @@
 using System.Text;
 using AuctionHouse.CatalogService.API.Services;
 using AuctionHouse.CatalogService.Infrastructure.DbContext;
-using Catalog.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

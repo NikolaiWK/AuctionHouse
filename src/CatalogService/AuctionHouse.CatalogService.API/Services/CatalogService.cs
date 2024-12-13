@@ -1,6 +1,5 @@
 ﻿using AuctionHouse.CatalogService.Domain.Entities;
 using AuctionHouse.CatalogService.Infrastructure.DbContext;
-using Catalog.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuctionHouse.CatalogService.API.Services;
