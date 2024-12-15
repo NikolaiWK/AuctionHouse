@@ -1,0 +1,60 @@
+name: Azure Provision
+
+on:
+  workflow_dispatch:
+
+jobs:
+  validate_bicep:
+    runs-on: ubuntu-latest
+
+    env:
+      RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+      AKS_CLUSTER_NAME: ${{ secrets.AKS_CLUSTER_NAME }}
+      LOCATION: ${{ secrets.LOCATION }}
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Log in to Azure
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Step 3: Validate Bicep template
+      - name: Validate Bicep Template
+        run: |
+          az deployment group validate \
+            --resource-group $RESOURCE_GROUP \
+            --template-file Infrastructure/bicep/main.bicep \
+            --parameters location=$LOCATION
+
+  run_bicep:
+    runs-on: ubuntu-latest
+    needs: validate_bicep
+
+    env:
+      RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+      AKS_CLUSTER_NAME: ${{ secrets.AKS_CLUSTER_NAME }}
+      LOCATION: ${{ secrets.LOCATION }}
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Log in to Azure
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Step 3: Provision Azure Resources
+      - name: Deploy Azure Resources
+        run: |
+          az deployment group create \
+            --resource-group $RESOURCE_GROUP \
+            --template-file Infrastructure/bicep/main.bicep \
+            --parameters location=$LOCATION

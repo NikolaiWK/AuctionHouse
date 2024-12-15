@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault-dev
+  labels:
+    app: vault-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault-dev
+  template:
+    metadata:
+      labels:
+        app: vault-dev
+    spec:
+      containers:
+        - name: vault
+          image: hashicorp/vault:latest
+          ports:
+            - containerPort: 8201
+          env:
+            - name: VAULT_ADDR
+              value: "https://0.0.0.0:8201/"
+            - name: VAULT_LOCAL_CONFIG
+              value: |
+                {
+                  "listener": [
+                    {
+                      "tcp": {
+                        "address": "0.0.0.0:8201",
+                        "tls_disable": 0,
+                        "tls_cert_file": "/data/cert.pem",
+                        "tls_key_file": "/data/key.pem"
+                      }
+                    }
+                  ],
+                  "default_lease_ttl": "168h",
+                  "max_lease_ttl": "720h",
+                  "ui": true
+                }
+            - name: VAULT_DEV_ROOT_TOKEN_ID
+              value: "00000000-0000-0000-0000-000000000000"
+            - name: VAULT_TOKEN
+              value: "00000000-0000-0000-0000-000000000000"
+          securityContext:
+            capabilities:
+              add:
+                - IPC_LOCK
+          volumeMounts:
+            - name: vault-tls
+              mountPath: /data
+              readOnly: true
+      volumes:
+        - name: vault-tls
+          configMap:
+            name: vault-tls

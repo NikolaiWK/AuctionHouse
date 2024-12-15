@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: "appuser"
+            - name: POSTGRES_PASSWORD
+              value: "secret"
+            - name: POSTGRES_DB
+              value: "auth"
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-data
+      volumes:
+        - name: postgres-data
+          emptyDir: {} # Replace with PersistentVolumeClaim if needed
+          apiVersion: apps/v1
+
+kind: Deployment
+metadata:
+  name: auction-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auction-postgres
+  template:
+    metadata:
+      labels:
+        app: auction-postgres
+    spec:
+      containers:
+        - name: auction-postgres
+          image: postgres:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: "appuser"
+            - name: POSTGRES_PASSWORD
+              value: "secret"
+            - name: POSTGRES_DB
+              value: "auction"
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: auction-postgres-data
+      volumes:
+        - name: auction-postgres-data
+          emptyDir: {} # Replace with PersistentVolumeClaim if needed
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: auction-postgres
+spec:
+  selector:
+    app: auction-postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP

@@ -1,0 +1,39 @@
+name: Build and Push to ACR
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    name: Build and Push Microservices
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure Container Registry Login
+        run: |
+          az acr login --name ${{ secrets.ACR_NAME }}
+
+      - name: Build and Push Auth-Service
+        run: |
+          docker build \
+            -f ./src/AuthenticationService/AuctionHouse.AuthenticationService.API/Dockerfile \
+            -t ${{ secrets.ACR_LOGIN_SERVER }}/auth-service:latest ./src
+          docker push ${{ secrets.ACR_LOGIN_SERVER }}/auth-service:latest
+
+      - name: Build and Push Catalog-Service
+        run: |
+          docker build \
+            -f ./src/CatalogService/AuctionHouse.CatalogService.API/Dockerfile \
+            -t ${{ secrets.ACR_LOGIN_SERVER }}/catalog-service:latest ./src
+          docker push ${{ secrets.ACR_LOGIN_SERVER }}/catalog-service:latest

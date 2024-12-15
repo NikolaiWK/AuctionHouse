@@ -1,0 +1,49 @@
+name: Deploy to AKS
+
+on:
+  workflow_run:
+    workflows:
+      - "Build and Push to ACR"
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+      AKS_CLUSTER_NAME: ${{ secrets.AKS_CLUSTER_NAME }}
+      LOCATION: ${{ secrets.LOCATION }}
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Log in to Azure
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Step 3: Get AKS credentials
+      - name: Get AKS Credentials
+        run: |
+          az aks get-credentials --resource-group $RESOURCE_GROUP \
+                                 --name $AKS_CLUSTER_NAME \
+                                 --overwrite-existing
+
+      # Step 4: Inject secrets for vault
+      - name: Create Kubernetes Secret for Vault
+        run: |
+          kubectl create secret generic vault-secrets \
+            --from-literal=VAULT_ADDR=${{ secrets.VAULT_ADDR }} \
+            --from-literal=VAULT_ROLE=${{ secrets.VAULT_ROLE }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      # Step 6: Deploy Kubernetes resources
+      - name: Apply Kubernetes Manifests
+        run: |
+          kubectl apply -f Infrastructure/kubernetes/auth-service.yaml
+          kubectl apply -f Infrastructure/kubernetes/catalog-service.yaml

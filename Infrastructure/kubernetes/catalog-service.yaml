@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalog-service
+  template:
+    metadata:
+      labels:
+        app: catalog-service
+    spec:
+      containers:
+        - name: catalog-service
+          image: nikoauctionhouseprojectregistry.azurecr.io/catalog-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 6051
+          env:
+            - name: VAULT_ADDR
+              valueFrom:
+                secretKeyRef:
+                  name: vault-secrets
+                  key: VAULT_ADDR
+            - name: VAULT_ROLE
+              valueFrom:
+                secretKeyRef:
+                  name: vault-secrets
+                  key: VAULT_ROLE
+            - name: ASPNETCORE_URLS
+              value: http://+:6051
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-service
+spec:
+  selector:
+    app: catalog-service
+  ports:
+    - protocol: TCP
+      port: 6051
+      targetPort: 6051
+  type: LoadBalancer
