@@ -22,6 +22,7 @@ jobs:
       #   uses: azure/login@v1
       #   with:
       #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Login to Azure with Personal Account
         run: |
           echo $AZURE_PASSWORD | az login --username $AZURE_USERNAME --password --allow-no-subscriptions
@@ -29,9 +30,9 @@ jobs:
           AZURE_USERNAME: ${{ secrets.AZURE_USERNAME }}
           AZURE_PASSWORD: ${{ secrets.AZURE_PASSWORD }}
 
-    - name: Verify Azure Login
-      run: |
-        az account show
+      - name: Verify Azure Login
+        run: |
+          az account show
 
       # Step 3: Validate Bicep template
       - name: Validate Bicep Template
