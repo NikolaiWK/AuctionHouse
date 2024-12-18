@@ -5,8 +5,31 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using VaultSharp;
+using VaultSharp.V1.AuthMethods.Token;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var authMethod =
+    new TokenAuthMethodInfo("00000000-0000-0000-0000-000000000000");
+var httpClientHandler = new HttpClientHandler();
+httpClientHandler.ServerCertificateCustomValidationCallback =
+    (_, _, _, _) => true;
+var vaultUri = builder.Configuration["VAULT_ADDR"] ?? "https://localhost:8201";
+var vaultClientSettings = new VaultClientSettings(vaultUri, authMethod)
+{
+    Namespace = "",
+    MyHttpClientProviderFunc = _
+        => new HttpClient(httpClientHandler)
+        {
+            BaseAddress = new Uri(vaultUri)
+        }
+};
+
+var vaultClient = new VaultClient(vaultClientSettings);
+var kv2Secret = await vaultClient.V1.Secrets.KeyValue.V2
+    .ReadSecretAsync(path: "services", mountPoint: "my-app");
+
 
 // Add services to the container.
 
@@ -14,20 +37,20 @@ builder.Services.AddScoped<ICatalogService, CatalogService>();
 
 builder.Services.AddDbContext<MongoDbContext>(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("MongoDb");
-    var databaseName = builder.Configuration.GetValue<string>("DatabaseName");
+    var connectionString = kv2Secret.Data.Data["mongodb_connectionstring"].ToString();
+    var databaseName = kv2Secret.Data.Data["mongodb_DatabaseName"].ToString();
     if (string.IsNullOrWhiteSpace(connectionString) || string.IsNullOrWhiteSpace(databaseName))
     {
-        throw new NullReferenceException("databaseName and databaseName can not be null");
+        throw new NullReferenceException("Connectiontring and databaseName can not be null");
     }
     options.UseMongoDB(connectionString, databaseName);
 });
 
 builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -36,9 +59,9 @@ builder.Services.AddAuthentication(options =>
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Issuer"],
-            ValidAudience = builder.Configuration["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTKey"]))
+            ValidIssuer = kv2Secret.Data.Data["Issuer"].ToString(),
+            ValidAudience = kv2Secret.Data.Data["Audience"].ToString(),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(kv2Secret.Data.Data["JWTKey"].ToString()))
         };
 
         options.Events = new JwtBearerEvents

@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using MongoDB.EntityFrameworkCore.Extensions;
 using System.Xml;
 using System;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace AuctionHouse.CatalogService.Infrastructure.DbContext;
 
@@ -26,7 +24,7 @@ public class MongoDbContext(DbContextOptions<MongoDbContext> options) : Microsof
         modelBuilder.Entity<ProductItem>(entity =>
         {
             entity.HasKey(e => e.ProductId);
-
+            
             entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Description).HasMaxLength(1000);
         });

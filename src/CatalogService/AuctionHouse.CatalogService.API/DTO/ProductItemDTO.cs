@@ -11,5 +11,5 @@ public class ProductItemDto
     public bool IsSold { get; set; }
 
     // public string Currency {get; set;} add For future scaling
-
+    
 }

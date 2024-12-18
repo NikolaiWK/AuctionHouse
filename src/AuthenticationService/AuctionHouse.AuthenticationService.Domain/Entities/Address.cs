@@ -1,3 +1,5 @@
+namespace AuctionHouse.AuthenticationService.Domain.Entities;
+
 public class UserAddress
 {
     public int Id { get; set; }

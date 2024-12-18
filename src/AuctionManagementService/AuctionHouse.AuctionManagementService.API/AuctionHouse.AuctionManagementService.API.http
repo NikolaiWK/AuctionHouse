@@ -1,6 +1,4 @@
-@AuctionHouse.AuctionManagementService.API_HostAddress = http://localhost:5083
+@AuctionHouse.AuctionManagementService.API_HostAddress = http://localhost:5111
 
-GET {{AuctionHouse.AuctionManagementService.API_HostAddress}}/weatherforecast/
-Accept: application/json
 
 ###

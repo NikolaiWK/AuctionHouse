@@ -1,6 +1,7 @@
 ﻿using AuctionHouse.CatalogService.API.DTO;
 using AuctionHouse.CatalogService.API.Mapper;
 using AuctionHouse.CatalogService.API.Services;
+using AuctionHouse.CatalogService.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -63,7 +64,7 @@ public class CatalogController : ControllerBase
 
         var result = await _dbService.GetProductItem(productId);
 
-        if (result == null)
+        if (result==null)
         {
             return null;
         }

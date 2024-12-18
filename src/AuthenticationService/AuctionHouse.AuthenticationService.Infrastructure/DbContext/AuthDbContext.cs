@@ -18,7 +18,7 @@ namespace AuctionHouse.AuthenticationService.Infrastructure.DbContext
         {
             base.OnModelCreating(modelBuilder);
 
-
+            
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("Users");
@@ -27,14 +27,15 @@ namespace AuctionHouse.AuthenticationService.Infrastructure.DbContext
                 entity.Property(u => u.PasswordHash).IsRequired();
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(50);
                 entity.HasOne(u => u.Address).WithOne().HasForeignKey<UserAddress>(a => a.Id).OnDelete(DeleteBehavior.Cascade); //If a user is deleted it deletes the related adress too
-
+                
             });
 
-
+         
         }
     }
 
-
+ 
 }
 
+   
 

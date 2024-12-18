@@ -2,7 +2,7 @@
 
 namespace AuctionHouse.CatalogService.Domain.Entities
 {
-
+   
     public class ProductItem
     {
         [BsonId]
@@ -13,7 +13,7 @@ namespace AuctionHouse.CatalogService.Domain.Entities
         public decimal AskingPrice { get; set; }
         // public string Currency {get; set;} add For future scaling
         public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get;set; }
         public bool IsSold { get; set; }
 
     }

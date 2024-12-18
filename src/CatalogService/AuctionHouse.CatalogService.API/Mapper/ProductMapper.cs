@@ -27,7 +27,7 @@ namespace AuctionHouse.CatalogService.API.Mapper
                 AskingPrice = productItem.AskingPrice,
                 IsSold = productItem.IsSold,
                 ProductId = productItem.ProductId
-
+                 
             };
 
         }

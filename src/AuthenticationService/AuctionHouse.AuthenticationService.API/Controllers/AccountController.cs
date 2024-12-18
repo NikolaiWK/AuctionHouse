@@ -33,7 +33,7 @@ namespace AuctionHouse.AuthenticationService.API.Controllers
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 ProfileImageURL = ""
-
+               
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -60,7 +60,7 @@ namespace AuctionHouse.AuthenticationService.API.Controllers
                 Email = user.Email,
                 Token = await _tokenService.GenerateToken(user),
             };
-        }
+}
 
         [Authorize]
         [HttpGet("currentUser")]
@@ -77,3 +77,4 @@ namespace AuctionHouse.AuthenticationService.API.Controllers
         }
     }
 }
+

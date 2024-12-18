@@ -68,7 +68,7 @@ public class CatalogService : ICatalogService
         }
     }
 
-
+   
     /// <summary>
     /// Add a new Product Item to the database.
     /// </summary>

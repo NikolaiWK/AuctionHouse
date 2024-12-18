@@ -3,16 +3,43 @@ using AuctionHouse.AuthenticationService.API.Interface;
 using AuctionHouse.AuthenticationService.Domain.Entities;
 using AuctionHouse.AuthenticationService.Infrastructure.DbContext;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-
-
-
+using VaultSharp;
+using VaultSharp.V1.AuthMethods.Token;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var authMethod =
+    new TokenAuthMethodInfo("00000000-0000-0000-0000-000000000000");
+var httpClientHandler = new HttpClientHandler();
+httpClientHandler.ServerCertificateCustomValidationCallback =
+    (_, _, _, _) => true;
+var vaultUri = builder.Configuration["VAULT_ADDR"] ?? "https://localhost:8201";
+var vaultClientSettings = new VaultClientSettings(vaultUri, authMethod)
+{
+    Namespace = "",
+    MyHttpClientProviderFunc = _
+        => new HttpClient(httpClientHandler)
+        {
+            BaseAddress = new Uri(vaultUri)
+        }
+};
+
+var vaultClient = new VaultClient(vaultClientSettings);
+var kv2Secret = await vaultClient.V1.Secrets.KeyValue.V2
+    .ReadSecretAsync(path: "services", mountPoint: "my-app");
+
+var config = new TokenConfig
+{
+    Key = kv2Secret.Data.Data["JWTKey"].ToString(),
+    Audience = kv2Secret.Data.Data["Audience"].ToString(),
+    Issuer = kv2Secret.Data.Data["Issuer"].ToString()
+};
+
+builder.Services.AddSingleton(provider => config);
 
 // Add services to the container.
 builder.Services.AddIdentityCore<User>(options =>
@@ -29,23 +56,26 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 
 }).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTKey"]))
-    };
-
-}
-
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = config.Issuer,
+            ValidAudience = config.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.Key))
+        };
+    }
 );
 
+builder.Services.AddAuthorization();
+
 // Register AuthDbContext with the connection string
+var connectionString = kv2Secret.Data.Data["authdb_connectionstring"].ToString();
 builder.Services.AddDbContext<AuthDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("AuthDbConnection")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddCors();
 
