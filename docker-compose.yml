@@ -1,5 +1,48 @@
 version: "3.8"
 services:
+  vault:
+    image: hashicorp/vault:latest
+    restart: on-failure:10
+    ports:
+      - "8201:8201"
+    environment:
+      VAULT_ADDR: "https://0.0.0.0:8201"
+      VAULT_LOCAL_CONFIG: '{"listener": [{"tcp":{"address": "0.0.0.0:8201",
+        "tls_disable": "0", "tls_cert_file":"/data/certs/cert.pem",
+        "tls_key_file":"/data/certs/key.pem"}}],
+        "default_lease_ttl": "168h", "max_lease_ttl": "720h"},
+        "ui": true}'
+      VAULT_DEV_ROOT_TOKEN_ID: "00000000-0000-0000-0000-000000000000"
+      VAULT_TOKEN: "00000000-0000-0000-0000-000000000000"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault-volume:/data
+      - ./certs:/data/certs
+    healthcheck:
+      test: ["CMD", "vault", "status", "-tls-skip-verify"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: 'server -dev -dev-root-token-id="00000000-0000-0000-0000-000000000000"'
+
+  vault-init:
+    image: hashicorp/vault:latest
+    depends_on:
+      vault:
+        condition: service_healthy
+    environment:
+      VAULT_ADDR: "https://vault:8201"
+      VAULT_TOKEN: "00000000-0000-0000-0000-000000000000"
+    volumes:
+      - ./init-secrets.sh:/init-secrets.sh
+      - ./secrets.json:/secrets.json
+      - ./certs:/data/certs
+    command: >
+      sh -c "
+      sh /init-secrets.sh &&
+      echo 'Vault initialization completed.'"
+
   mongodb:
     image: mongo
     container_name: mongodb-container
@@ -11,9 +54,9 @@ services:
     volumes:
       - mongodb-data:/data/db
 
-  postgres:
+  auth-postgres:
     image: postgres:latest
-    container_name: postgres-container
+    container_name: auth-postgres
     ports:
       - "5432:5432"
     environment:
@@ -22,9 +65,35 @@ services:
       POSTGRES_DB: auth
       Issuer:
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - auth-postgres-data:/var/lib/postgresql/data
 
-  Rabbitmq:
+  auction-postgres:
+    image: postgres:latest
+    container_name: auction-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: auction
+      Issuer:
+    volumes:
+      - auction-postgres-data:/var/lib/postgresql/data
+
+  bid-postgres:
+    image: postgres:latest
+    container_name: bid-postgres
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: bid
+      Issuer:
+    volumes:
+      - bid-postgres-data:/var/lib/postgresql/data
+
+  rabbitmq:
     image: rabbitmq:3-management
     hostname: rabbitmq
     ports:
@@ -35,6 +104,11 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   auth-service:
     build:
@@ -42,14 +116,14 @@ services:
       dockerfile: AuthenticationService/AuctionHouse.AuthenticationService.API/Dockerfile
     container_name: auth-service
     depends_on:
-      - postgres
+      auth-postgres:
+        condition: service_started
+      vault:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:5051
-      ConnectionStrings__AuthDbConnection: Server=postgres;Port=5432;User Id=appuser;Password=secret;Database=auth
-      Issuer: http://auth-service:5051
-      Audience: auctionhouse-apps
-      JWTKey: THIS IS A VERY COMPLEX TEST KEY FOR TOKEN GENERATION
+      VAULT_ADDR: https://vault:8201
+      VAULT_ROLE:
     ports:
       - "5051:5051"
 
@@ -59,20 +133,66 @@ services:
       dockerfile: CatalogService/AuctionHouse.CatalogService.API/Dockerfile
     container_name: catalog-service
     depends_on:
-      - auth-service
-      - mongodb
+      auth-service:
+        condition: service_started
+      mongodb:
+        condition: service_started
+      vault:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:6051
-      ConnectionStrings__MongoDb: mongodb://admin:password@mongodb:27017
-      DatabaseName: Catalog
-      Issuer: http://auth-service:5051
-      Audience: auctionhouse-apps
-      JWTKey: THIS IS A VERY COMPLEX TEST KEY FOR TOKEN GENERATION
+      VAULT_ADDR: https://vault:8201
+      VAULT_ROLE:
     ports:
       - "6051:6051"
 
+  auction-service:
+    build:
+      context: ./src
+      dockerfile: AuctionManagementService/AuctionHouse.AuctionManagementService.API/Dockerfile
+    container_name: auction-service
+    depends_on:
+      auth-service:
+        condition: service_started
+      auction-postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      vault:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      VAULT_ADDR: https://vault:8201
+      VAULT_ROLE:
+    ports:
+      - "7051:7051"
+
+  bid-service:
+    build:
+      context: ./src
+      dockerfile: BidService/AuctionHouse.BidService.Service/Dockerfile
+    container_name: bid-service
+    depends_on:
+      auth-service:
+        condition: service_started
+      bid-postgres:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      vault:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      VAULT_ADDR: https://vault:8201
+      VAULT_ROLE:
+
+    ports:
+      - "8051:8051"
+
 volumes:
   mongodb-data:
-  postgres-data:
+  auth-postgres-data:
+  auction-postgres-data:
+  bid-postgres-data:
   rabbitmq-data:
+  vault-volume:
