@@ -45,4 +45,4 @@ spec:
     - protocol: TCP
       port: 5051
       targetPort: 5051
-  type: LoadBalancer
+  type: ClusterIP

@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /auction(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: auction-service
+                port:
+                  number: 7051
+          - path: /auth(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 5051
+          - path: /catalog(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: catalog-service
+                port:
+                  number: 6051
+          - path: /bid(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: bid-service
+                port:
+                  number: 8051
