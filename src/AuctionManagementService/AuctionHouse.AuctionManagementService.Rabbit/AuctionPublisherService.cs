@@ -9,25 +9,25 @@ public class AuctionPublisherService : IAuctionPublisherService, IDisposable
 {
     private readonly IConnection _connection;
     private readonly IModel _channel;
-    private readonly QueueOptions _queueOptions;
+    private readonly AuctionPublisherQueueOptions _auctionPublisherQueueOptions;
 
-    public AuctionPublisherService(QueueOptions options)
+    public AuctionPublisherService(AuctionPublisherQueueOptions options)
     {
-        _queueOptions = options;
+        _auctionPublisherQueueOptions = options;
 
         var connectionFactory = new ConnectionFactory()
         {
-            HostName = _queueOptions.HostName,
-            Port = _queueOptions.Port,
-            UserName = _queueOptions.Username,
-            Password = _queueOptions.Password
+            HostName = _auctionPublisherQueueOptions.HostName,
+            Port = _auctionPublisherQueueOptions.Port,
+            UserName = _auctionPublisherQueueOptions.Username,
+            Password = _auctionPublisherQueueOptions.Password
 
 
         };
         _connection = connectionFactory.CreateConnection();
         _channel = _connection.CreateModel();
 
-        _channel.ExchangeDeclare(exchange: _queueOptions.ExchangeName, type: ExchangeType.Topic, durable: true);
+        _channel.ExchangeDeclare(exchange: _auctionPublisherQueueOptions.ExchangeName, type: ExchangeType.Topic, durable: true);
     }
 
     public void Dispose()
@@ -41,8 +41,8 @@ public class AuctionPublisherService : IAuctionPublisherService, IDisposable
         var body = Encoding.UTF8.GetBytes(auctionEvent);
 
         _channel.BasicPublish(
-            exchange: _queueOptions.ExchangeName,
-            routingKey: _queueOptions.RoutingKey,
+            exchange: _auctionPublisherQueueOptions.ExchangeName,
+            routingKey: _auctionPublisherQueueOptions.RoutingKey,
             basicProperties: null,
             body: body
 

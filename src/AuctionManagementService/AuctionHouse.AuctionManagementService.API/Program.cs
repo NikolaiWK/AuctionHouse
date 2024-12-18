@@ -1,5 +1,7 @@
 using System.Text;
 using System.Text.Json;
+using AuctionHouse.AuctionManagementService.API;
+using AuctionHouse.AuctionManagementService.API.QueueOptions;
 using AuctionHouse.AuctionManagementService.API.Repositories;
 using AuctionHouse.AuctionManagementService.API.Services;
 using AuctionHouse.AuctionManagementService.Infrastructure.DbContext;
@@ -34,18 +36,22 @@ var kv2Secret = await vaultClient.V1.Secrets.KeyValue.V2
     .ReadSecretAsync(path: "services", mountPoint: "secret");
 
 
-var rabbitOptions = JsonSerializer.Deserialize<QueueOptions>(kv2Secret.Data.Data["auction_publisher_options"].ToString()!);
+var auctionReceiverQueueOptions = JsonSerializer.Deserialize<AuctionReceiverQueueOptions>(kv2Secret.Data.Data["auction_receiver_options"].ToString()!);
+var auctionPublisherQueueOptions = JsonSerializer.Deserialize<AuctionPublisherQueueOptions>(kv2Secret.Data.Data["auction_publisher_options"].ToString()!);
 
-builder.Services.AddSingleton(rabbitOptions!);
+
+builder.Services.AddSingleton(auctionReceiverQueueOptions!);
+builder.Services.AddSingleton(auctionPublisherQueueOptions!);
 
 // Add services to the container.
 builder.Services.AddHttpClient();
 
 builder.Services.AddTransient<IAuctionService, AuctionService>();
+builder.Services.AddTransient<IEventService, EventService>();
 builder.Services.AddTransient<IAuctionRepository, AuctionRepository>();
 builder.Services.AddSingleton<IAuctionPublisherService, AuctionPublisherService>();
 
-
+builder.Services.AddHostedService<Worker>();
 
 var connectionString = kv2Secret.Data.Data["auctiondb_connectionstring"].ToString();
 //var connectionString = "Server=localhost;Port=5432;User Id=appuser;Password=secret;Database=auction";

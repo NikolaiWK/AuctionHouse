@@ -19,6 +19,7 @@ public class BidSummaryDto
 {
     public decimal CurrentHighestBid { get; set; }
     public int TotalBids { get; set; }
+    public int? UserId { get; set; }
 }
 
 public enum AuctionStatusDto

@@ -8,11 +8,13 @@ public interface IAuctionRepository
 {
     Task AddAuction(Auction auction);
     Task<Auction?> GetAuction(Guid auctionId);
+    Task<List<Auction>> GetAuctions();
     Task<Guid?> StartAuction(Guid auctionId);
     Task<Guid?> EndAuction(Guid auctionId);
+    Task PlaceNewBid(Guid auctionId, int userId, decimal amount);
 }
 
-public class AuctionRepository(AuctionDbContext context) : IAuctionRepository
+public class AuctionRepository(AuctionDbContext context, ILogger<AuctionRepository> logger) : IAuctionRepository
 {
     public async Task AddAuction(Auction auction)
     {
@@ -24,6 +26,11 @@ public class AuctionRepository(AuctionDbContext context) : IAuctionRepository
     {
         var auction = await context.Auctions.Include(x=>x.BidSummary).FirstOrDefaultAsync(x => x.AuctionId == auctionId);
         return auction;
+    }
+
+    public async Task<List<Auction>> GetAuctions()
+    {
+        return await context.Auctions.Include(x=>x.BidSummary).ToListAsync();
     }
 
     public async Task<Guid?> StartAuction(Guid auctionId)
@@ -54,5 +61,22 @@ public class AuctionRepository(AuctionDbContext context) : IAuctionRepository
         await context.SaveChangesAsync();
 
         return auction?.AuctionId;
+    }
+
+    public async Task PlaceNewBid(Guid auctionId, int userId, decimal amount)
+    {
+        var bidSummary = await context.BidSummaries.FirstOrDefaultAsync(x => x.BidSummaryId == auctionId);
+        if (bidSummary != null)
+        {
+            bidSummary.CurrentHighestBid = amount;
+            bidSummary.UserId = userId;
+            bidSummary.TotalBids++;
+            bidSummary.UpdatedAt = DateTimeOffset.UtcNow;
+        }
+        else
+        {
+            logger.LogWarning($"Failed to find auction with auctionId: {auctionId}");
+        }
+        await context.SaveChangesAsync();
     }
 }

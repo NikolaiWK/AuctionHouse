@@ -44,3 +44,10 @@ jobs:
             -f ./src/AuctionManagementService/AuctionHouse.AuctionManagementService.API/Dockerfile \
             -t ${{ secrets.ACR_LOGIN_SERVER }}/auction-service:latest ./src
           docker push ${{ secrets.ACR_LOGIN_SERVER }}/auction-service:latest
+
+      - name: Build and Push Bid-Service
+        run: |
+          docker build \
+            -f ./src/BidService/AuctionHouse.BidService.Service/Dockerfile \
+            -t ${{ secrets.ACR_LOGIN_SERVER }}/bid-service:latest ./src
+          docker push ${{ secrets.ACR_LOGIN_SERVER }}/bid-service:latest

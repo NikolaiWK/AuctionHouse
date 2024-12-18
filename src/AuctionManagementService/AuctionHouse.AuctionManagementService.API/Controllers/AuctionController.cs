@@ -105,16 +105,19 @@ namespace AuctionHouse.AuctionManagementService.API.Controllers
             return Ok(auction);
         }
 
-
-        private void saveme()
+        [HttpGet]
+        public async Task<IActionResult> GetAuctions()
         {
-            var nameIdClaim = User.FindFirst("nameid");
-            if (nameIdClaim == null)
+            logger.LogInformation($"Fetching auctions");
+
+            var auctions = await auctionService.GetAuctions();
+            if (auctions.Count == 0)
             {
-                //return NotFound("The nameid claim was not found.");
+                return NotFound("Auction not found.");
             }
 
-            var nameIdValue = nameIdClaim.Value;
+            return Ok(auctions);
         }
+
     }
 }

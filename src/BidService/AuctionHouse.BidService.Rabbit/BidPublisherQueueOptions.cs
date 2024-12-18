@@ -1,6 +1,6 @@
-﻿namespace AuctionHouse.AuctionManagementService.Rabbit
+﻿namespace AuctionHouse.BidService.Rabbit
 {
-    public class QueueOptions
+    public class BidPublisherQueueOptions
     {
         public string HostName { get; set; }
         public string ExchangeName { get; set; }

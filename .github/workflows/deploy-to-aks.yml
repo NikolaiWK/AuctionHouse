@@ -47,3 +47,5 @@ jobs:
         run: |
           kubectl apply -f Infrastructure/kubernetes/auth-service.yaml
           kubectl apply -f Infrastructure/kubernetes/catalog-service.yaml
+          kubectl apply -f Infrastructure/kubernetes/auction-service.yaml
+          kubectl apply -f Infrastructure/kubernetes/bid-service.yaml

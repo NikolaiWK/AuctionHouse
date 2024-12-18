@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bid-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bid-service
+  template:
+    metadata:
+      labels:
+        app: bid-service
+    spec:
+      containers:
+        - name: bid-service
+          image: nikolaiauctionhouseprojectregistry.azurecr.io/bid-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8051
+          env:
+            - name: VAULT_ADDR
+              valueFrom:
+                secretKeyRef:
+                  name: vault-secrets
+                  key: VAULT_ADDR
+            - name: VAULT_ROLE
+              valueFrom:
+                secretKeyRef:
+                  name: vault-secrets
+                  key: VAULT_ROLE
+            - name: ASPNETCORE_URLS
+              value: http://+:8051
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bid-service
+spec:
+  selector:
+    app: bid-service
+  ports:
+    - protocol: TCP
+      port: 8051
+      targetPort: 8051
+  type: LoadBalancer

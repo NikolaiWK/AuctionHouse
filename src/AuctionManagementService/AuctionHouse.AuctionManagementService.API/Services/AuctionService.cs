@@ -11,6 +11,7 @@ public interface IAuctionService
 {
     Task<Guid?> CreateAuction(CreateAuctionDto auctionDto, ProductItemDto productDto);
     Task<AuctionDto?> GetAuction(Guid actionId);
+    Task<List<AuctionDto>> GetAuctions();
     Task<Guid?> StartAuction(Guid auctionId);
     Task<Guid?> EndAuction(Guid auctionId);
 }
@@ -70,6 +71,7 @@ public class AuctionService(IAuctionRepository repository, ILogger<AuctionServic
                 {
                     CurrentHighestBid = result.BidSummary.CurrentHighestBid,
                     TotalBids = result.BidSummary.TotalBids,
+                    UserId = result.BidSummary.UserId
                 }
             };
         }
@@ -78,16 +80,38 @@ public class AuctionService(IAuctionRepository repository, ILogger<AuctionServic
 
     }
 
+    public async Task<List<AuctionDto>> GetAuctions()
+    {
+        var result = await repository.GetAuctions();
+
+        return result.Select(x => new AuctionDto
+        {
+            AuctionId = x.AuctionId,
+            BidSummary = new BidSummaryDto
+            {
+                CurrentHighestBid = x.BidSummary.CurrentHighestBid,
+                TotalBids = x.BidSummary.TotalBids,
+                UserId = x.BidSummary.UserId,
+            },
+            StartingPrice = x.StartingPrice,
+            Status = (AuctionStatusDto)x.Status,
+            Description = x.Description,
+            EndTime = x.EndTime,
+            Name = x.Name,
+            ProductId = x.ProductId,
+            StartTime = x.StartTime
+        }).ToList();
+    }
+
     public async Task<Guid?> StartAuction(Guid auctionId)
     {
         var result = await repository.StartAuction(auctionId);
         if (result != null)
         {
-            var messageBody = JsonSerializer.Serialize(new AuctionStartedEvent
+            var messageBody = JsonSerializer.Serialize(new AuctionBaseEvent()
             {
                 AuctionType = AuctionType.AuctionStarted,
-                AuctionId = (Guid)result,
-                StartTime = DateTimeOffset.UtcNow
+                AuctionId = (Guid)result
             });
 
             publisherService.PublishMessage(messageBody);
@@ -106,11 +130,10 @@ public class AuctionService(IAuctionRepository repository, ILogger<AuctionServic
         var result = await repository.EndAuction(auctionId);
         if (result != null)
         {
-            var messageBody = JsonSerializer.Serialize(new AuctionEndedEvent()
+            var messageBody = JsonSerializer.Serialize(new AuctionBaseEvent()
             {
                 AuctionType = AuctionType.AuctionFinished,
-                AuctionId = (Guid)result,
-                EndTime = DateTimeOffset.UtcNow
+                AuctionId = (Guid)result
             });
 
             publisherService.PublishMessage(messageBody);
