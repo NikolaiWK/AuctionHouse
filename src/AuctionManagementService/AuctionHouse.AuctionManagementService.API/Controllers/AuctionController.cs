@@ -52,7 +52,7 @@ namespace AuctionHouse.AuctionManagementService.API.Controllers
             {
                 return BadRequest("Auction could not be created. Product is already sold on auction.");
             }
-
+            
             var auctionId = await auctionService.CreateAuction(auctionDto, product);
             if (auctionId == null)
             {
@@ -103,6 +103,18 @@ namespace AuctionHouse.AuctionManagementService.API.Controllers
             }
 
             return Ok(auction);
+        }
+
+
+        private void saveme()
+        {
+            var nameIdClaim = User.FindFirst("nameid");
+            if (nameIdClaim == null)
+            {
+                //return NotFound("The nameid claim was not found.");
+            }
+
+            var nameIdValue = nameIdClaim.Value;
         }
     }
 }

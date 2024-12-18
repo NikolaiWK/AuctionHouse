@@ -30,8 +30,8 @@ spec:
       volumes:
         - name: postgres-data
           emptyDir: {} # Replace with PersistentVolumeClaim if needed
-          apiVersion: apps/v1
 
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auction-postgres
@@ -63,6 +63,39 @@ spec:
       volumes:
         - name: auction-postgres-data
           emptyDir: {} # Replace with PersistentVolumeClaim if needed
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bid-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bid-postgres
+  template:
+    metadata:
+      labels:
+        app: bid-postgres
+    spec:
+      containers:
+        - name: bid-postgres
+          image: postgres:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: "appuser"
+            - name: POSTGRES_PASSWORD
+              value: "secret"
+            - name: POSTGRES_DB
+              value: "bid"
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: bid-postgres-data
+      volumes:
+        - name: bid-postgres-data
+          emptyDir: {} # Replace with PersistentVolumeClaim if needed
 ---
 apiVersion: v1
 kind: Service
@@ -84,6 +117,20 @@ metadata:
 spec:
   selector:
     app: auction-postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: bid-postgres
+spec:
+  selector:
+    app: bid-postgres
   ports:
     - protocol: TCP
       port: 5432

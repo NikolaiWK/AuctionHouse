@@ -6,7 +6,7 @@ public class BidSummary
     public Guid AuctionId { get; set; }
     public decimal CurrentHighestBid { get; set; }
     public int TotalBids { get; set; }
-    public int UserId { get; set; }
+    public int? UserId { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 
 

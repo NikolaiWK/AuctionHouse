@@ -55,3 +55,19 @@ spec:
         - name: vault-tls
           configMap:
             name: vault-tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-dev
+  labels:
+    app: vault-dev
+spec:
+  selector:
+    app: vault-dev
+  ports:
+    - name: https
+      port: 8201
+      targetPort: 8201
+      protocol: TCP
+  type: ClusterIP

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: catalog-service
-          image: nikoauctionhouseprojectregistry.azurecr.io/catalog-service:latest
+          image: nikolaiauctionhouseprojectregistry.azurecr.io/catalog-service:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 6051

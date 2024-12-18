@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-service
+  name: auction-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: auth-service
+      app: auction-service
   template:
     metadata:
       labels:
-        app: auth-service
+        app: auction-service
     spec:
       containers:
-        - name: auth-service
-          image: nikolaiauctionhouseprojectregistry.azurecr.io/auth-service:latest
+        - name: auction-service
+          image: nikolaiauctionhouseprojectregistry.azurecr.io/auction-service:latest
           imagePullPolicy: Always
           ports:
-            - containerPort: 5051
+            - containerPort: 7051
           env:
             - name: VAULT_ADDR
               valueFrom:
@@ -30,19 +30,19 @@ spec:
                   name: vault-secrets
                   key: VAULT_ROLE
             - name: ASPNETCORE_URLS
-              value: http://+:5051
+              value: http://+:7051
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: auth-service
+  name: auction-service
 spec:
   selector:
-    app: auth-service
+    app: auction-service
   ports:
     - protocol: TCP
-      port: 5051
-      targetPort: 5051
+      port: 7051
+      targetPort: 7051
   type: LoadBalancer

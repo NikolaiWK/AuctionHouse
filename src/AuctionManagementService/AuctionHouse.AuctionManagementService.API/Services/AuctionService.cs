@@ -37,6 +37,7 @@ public class AuctionService(IAuctionRepository repository, ILogger<AuctionServic
                 CurrentHighestBid = 0,
                 TotalBids = 0,
                 UpdatedAt = DateTimeOffset.UtcNow,
+                UserId = null
             },
             ProductId = Guid.Parse(productDto.productId),
             CreatedAt = DateTimeOffset.UtcNow,

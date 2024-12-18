@@ -28,7 +28,7 @@ var vaultClientSettings = new VaultClientSettings(vaultUri, authMethod)
 
 var vaultClient = new VaultClient(vaultClientSettings);
 var kv2Secret = await vaultClient.V1.Secrets.KeyValue.V2
-    .ReadSecretAsync(path: "services", mountPoint: "my-app");
+    .ReadSecretAsync(path: "services", mountPoint: "secret");
 
 
 // Add services to the container.
