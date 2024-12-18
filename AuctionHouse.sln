@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuctionHouse.BidService.Inf
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuctionHouse.BidService.Rabbit", "src\BidService\AuctionHouse.BidService.Rabbit\AuctionHouse.BidService.Rabbit.csproj", "{76E97580-5DB5-48B0-B27B-842DD80B1A8A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuctionHouse.BidService.Tests", "src\BidService\AuctionHouse.BidService.Tests\AuctionHouse.BidService.Tests.csproj", "{D07FABF0-EB3F-4DE8-9E08-7E5604BCB5FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -109,6 +111,10 @@ Global
 		{76E97580-5DB5-48B0-B27B-842DD80B1A8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76E97580-5DB5-48B0-B27B-842DD80B1A8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76E97580-5DB5-48B0-B27B-842DD80B1A8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D07FABF0-EB3F-4DE8-9E08-7E5604BCB5FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D07FABF0-EB3F-4DE8-9E08-7E5604BCB5FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D07FABF0-EB3F-4DE8-9E08-7E5604BCB5FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D07FABF0-EB3F-4DE8-9E08-7E5604BCB5FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -129,6 +135,7 @@ Global
 		{36982D10-F1B2-4173-B772-70DAF94BC142} = {965EFD94-4D1B-4522-B16E-2769764E6A9A}
 		{6316F392-1898-4590-AB67-DCE44BEB1681} = {965EFD94-4D1B-4522-B16E-2769764E6A9A}
 		{76E97580-5DB5-48B0-B27B-842DD80B1A8A} = {965EFD94-4D1B-4522-B16E-2769764E6A9A}
+		{D07FABF0-EB3F-4DE8-9E08-7E5604BCB5FD} = {965EFD94-4D1B-4522-B16E-2769764E6A9A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {60B2B5BC-B48C-4D22-9ECD-0CEAC57ADD4C}
