@@ -7,9 +7,32 @@ on:
   workflow_dispatch:
 
 jobs:
+  test:
+    name: Test Microservices
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run unit tests
+        run: dotnet test --no-build --configuration Release --logger "console;verbosity=detailed"
+
   build-and-push:
     name: Build and Push Microservices
     runs-on: ubuntu-latest
+    needs: test
 
     steps:
       - name: Checkout code
