@@ -122,6 +122,7 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5051
       VAULT_ADDR: https://vault:8201
       VAULT_ROLE:
     ports:
@@ -141,6 +142,7 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:6051
       VAULT_ADDR: https://vault:8201
       VAULT_ROLE:
     ports:
@@ -162,6 +164,7 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:7051
       VAULT_ADDR: https://vault:8201
       VAULT_ROLE:
     ports:
@@ -183,6 +186,7 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8051
       VAULT_ADDR: https://vault:8201
       VAULT_ROLE:
 
